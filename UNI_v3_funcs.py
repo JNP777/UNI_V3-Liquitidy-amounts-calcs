@@ -5,8 +5,6 @@ Created on Mon Jun 14 18:53:09 2021
 @author: JNP
 """
 
-
-
 '''liquitidymath'''
 '''Python library to emulate the calculations done in liquiditymath.sol of UNI_V3 peryphery contract'''
 
@@ -14,8 +12,10 @@ Created on Mon Jun 14 18:53:09 2021
 #liquidity: int
 #sqrtA = price for lower tick
 #sqrtB = price for upper tick
+
 '''get_amounts function'''
 #Use 'get_amounts' function to calculate amounts as a function of liquitidy and price range
+
 def get_amount0(sqrtA,sqrtB,liquidity,decimals):
     
     if (sqrtA > sqrtB):
@@ -43,6 +43,7 @@ def get_amounts(sqrt,sqrtA,sqrtB,liquidity,decimal0,decimal1):
         
         amount0=get_amount0(sqrtA,sqrtB,liquidity,decimal0)
         return amount0,0
+    
     elif sqrt<sqrtB and sqrt>sqrtA:
         
         amount0=get_amount0(sqrt,sqrtB,liquidity,decimal0)
@@ -55,7 +56,8 @@ def get_amounts(sqrt,sqrtA,sqrtB,liquidity,decimal0,decimal1):
 
 '''get token amounts relation'''
 #Use this formula to calculate amount of t0 based on amount of t1 (required before calculate liquidity)
-#relation = t1/t0      
+#relation = t1/t0  
+
 def amounts_relation (tick,tickA,tickB,decimals0,decimals1):
     
     sqrt=1.0001**tick/10**(decimals1-decimals0)
@@ -67,6 +69,7 @@ def amounts_relation (tick,tickA,tickB,decimals0,decimals1):
 
 '''get_liquidity function'''
 #Use 'get_liquidity' function to calculate liquidity as a function of amounts and price range
+
 def get_liquidity0(sqrtA,sqrtB,amount0,decimals):
     
     if (sqrtA > sqrtB):
