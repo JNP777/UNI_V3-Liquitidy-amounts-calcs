@@ -60,9 +60,9 @@ def get_amounts(sqrt,sqrtA,sqrtB,liquidity,decimal0,decimal1):
 
 def amounts_relation (tick,tickA,tickB,decimals0,decimals1):
     
-    sqrt=1.0001**tick/10**(decimals1-decimals0)
-    sqrtA=1.0001**tickA/10**(decimals1-decimals0)
-    sqrtB=1.0001**tickB/10**(decimals1-decimals0)
+    sqrt=(1.0001**tick/10**(decimals1-decimals0))**(1/2)
+    sqrtA=(1.0001**tickA/10**(decimals1-decimals0))**(1/2)
+    sqrtB=(1.0001**tickB/10**(decimals1-decimals0))**(1/2)
     
     relation=(sqrt-sqrtA)/((1/sqrt)-(1/sqrtB))     
     return relation        
