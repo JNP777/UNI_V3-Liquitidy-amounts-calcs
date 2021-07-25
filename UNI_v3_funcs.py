@@ -49,14 +49,10 @@ def get_amounts(tick,tickA,tickB,liquidity,decimal0,decimal1):
         return amount0,0
    
     elif sqrt<sqrtB and sqrt>sqrtA:
-        print(1)
-        print(sqrt)
-        print(sqrtA)
-        print(sqrtB)
         amount0=get_amount0(sqrt,sqrtB,liquidity,decimal0)
-        print(amount0)
+   
         amount1=get_amount1(sqrtA,sqrt,liquidity,decimal1)
-        print(amount1)
+       
         return amount0,amount1
     
     else:
@@ -74,7 +70,7 @@ def amounts_relation (tick,tickA,tickB,decimals0,decimals1):
     
     if sqrt==sqrtA or sqrt==sqrtB:
         relation=0
-        print("There is 0 tokens on one side")
+       
 
     relation=(sqrt-sqrtA)/((1/sqrt)-(1/sqrtB))     
     return relation       
