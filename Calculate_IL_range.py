@@ -17,7 +17,8 @@ tick_entry=198740
 sqrt_entry=(1.0001**(tick_entry/2)*(2**96))
 
 #Create vector with every tick_space in the range
-test['ticks']=np.arange(tick_lower,tick_upper,tick_space)
+
+
 test['sqrt']=(1.0001**(test['ticks']/2)*(2**96))
 test['sqrtA']=(1.0001**(tick_lower/2)*(2**96))
 test['sqrtB']=(1.0001**(tick_upper/2)*(2**96))
@@ -30,12 +31,11 @@ amount1=1
 amount0=1/relation_token
 
 #Calls amountsforliquidity formula to get liquidity deployed 
-initial_liquidity= liq_amounts.get_liquidity(sqrt_entry,test['sqrtA'].iloc[0],test['sqrtB'].iloc[0],amount0,amount1,decimals0,decimals1)   
+initial_liquidity= liq_amounts.get_liquidity(tick_entry,tick_lower,tick_upper,amount0,amount1,decimals0,decimals1)   
 test['liquidity']=initial_liquidity
-
 #Calculate amounts at every tick space based on liquidity
-test['amounts_0']=test.apply(lambda x: liq_amounts.get_amounts(x['sqrt'],x['sqrtA'],x['sqrtB'],x['liquidity'],decimals0,decimals1)[0] ,axis=1)
-test['amounts_1']=test.apply(lambda x: liq_amounts.get_amounts(x['sqrt'],x['sqrtA'],x['sqrtB'],x['liquidity'],decimals0,decimals1)[1] ,axis=1)
+test['amounts_0']=test.apply(lambda x: liq_amounts.get_amounts(x['ticks'],tick_lower,tick_upper,x['liquidity'],decimals0,decimals1)[0] ,axis=1)
+test['amounts_1']=test.apply(lambda x: liq_amounts.get_amounts(x['ticks'],tick_lower,tick_upper,x['liquidity'],decimals0,decimals1)[1] ,axis=1)
 
 #Calculating price at every tick_space
 test['price_t1/t0']=1/(1.0001**test['ticks']/10**(decimals1-decimals0))
