@@ -1,64 +1,71 @@
-
-import UNI_v3_funcs as liq_amounts
 import numpy as np
 import pandas as pd
-
-#Pool features
-decimals0=6
-decimals1=18
-tick_space=60 #fee_tier
-test=pd.DataFrame()
-
-#Ticks of the range to simulate
-tick_lower=196740
-tick_upper=201120
-#Tick of the pool at time0
-tick_entry=198740
-sqrt_entry=(1.0001**(tick_entry/2)*(2**96))
-
-#Create vector with every tick_space in the range
-
-
-test['sqrt']=(1.0001**(test['ticks']/2)*(2**96))
-test['sqrtA']=(1.0001**(tick_lower/2)*(2**96))
-test['sqrtB']=(1.0001**(tick_upper/2)*(2**96))
-
-#Calls liquidity amount formula to calculate the relation of tokens required to pool at time0
-relation_token= abs(liq_amounts.amounts_relation (tick_entry,tick_lower,tick_upper,decimals0,decimals1))
-
-#Calculating amounts of token0 based on 1 unit of t1
-amount1=1
-amount0=1/relation_token
-
-#Calls amountsforliquidity formula to get liquidity deployed 
-initial_liquidity= liq_amounts.get_liquidity(tick_entry,tick_lower,tick_upper,amount0,amount1,decimals0,decimals1)   
-test['liquidity']=initial_liquidity
-#Calculate amounts at every tick space based on liquidity
-test['amounts_0']=test.apply(lambda x: liq_amounts.get_amounts(x['ticks'],tick_lower,tick_upper,x['liquidity'],decimals0,decimals1)[0] ,axis=1)
-test['amounts_1']=test.apply(lambda x: liq_amounts.get_amounts(x['ticks'],tick_lower,tick_upper,x['liquidity'],decimals0,decimals1)[1] ,axis=1)
-
-#Calculating price at every tick_space
-test['price_t1/t0']=1/(1.0001**test['ticks']/10**(decimals1-decimals0))
-
-#Calculating the value of the position in every tick_space
-test['value_LP']=test['amounts_1']*test['price_t1/t0']+test['amounts_0']
-
-#Calculating the value of holding the initial amount of tokens
-test['value_Hold']=amount1*test['price_t1/t0']+amount0
-
-#Calculating IL
-test['IL_USD']=test['value_LP']-test['value_Hold']
-test['ILvsHold']=test['IL_USD']/test['value_Hold']
-
-#Plotting price vs IL
+from UNI_v3_funcs import *
 import matplotlib.pyplot as plt
-plt.plot(test['price_t1/t0'],test['IL_USD'])
-# plt.plot(test['price_t1/t0'],test['ILvsHold'])
-plt.show()
 
 
+class Pool_simualtion:
+    def __init__(self, tick_upper, tick_lower, tick_entry):
+        self.tick_upper = tick_upper
+        self.tick_lower = tick_lower
+        self.tick_entry = tick_entry
+        self.decimals0 = 6
+        self.decimals1 = 18
+        self.tick_space = 80
+        self.sqrt_entry = (1.0001 ** (self.tick_entry / 2) * (2 ** 96))
+        self.df = pd.DataFrame()
+
+        # Create vector with every tick_space in the range
+
+    def create_df(self):
+        self.df['ticks'] = np.arange(self.tick_lower, self.tick_upper, self.tick_space)
+        self.df['sqrt'] = (1.0001 ** (self.df['ticks'] / 2) * (2 ** 96))
+        self.df['sqrtA'] = (1.0001 ** (self.tick_lower / 2) * (2 ** 96))
+        self.df['sqrtB'] = (1.0001 ** (self.tick_upper / 2) * (2 ** 96))
+
+        # Calls liquidity amount formula to calculate the relation of tokens required to pool at time0
+        relation_token = abs(
+            amounts_relation(self.tick_entry, self.tick_lower, self.tick_upper, self.decimals0, self.decimals1))
+        # Calculating amounts of token0 based on 1 unit of t1
+        amount1 = 1
+        amount0 = 1 / relation_token
+        # Calls amountsforliquidity formula to get liquidity deployed
+        initial_liquidity = get_liquidity(self.tick_entry, self.tick_lower,
+                                          self.tick_upper, amount0,
+                                          amount1, self.decimals0,
+                                          self.decimals1)
+        self.df['liquidity'] = initial_liquidity
+        # Calculate amounts at every tick space based on liquidity for amounts0
+        self.df['amounts_0'] = self.df.apply(lambda x: get_amounts(x['ticks'],
+                                                                   self.tick_lower, self.tick_upper,
+                                                                   x['liquidity'], self.decimals0,
+                                                                   self.decimals1)[0], axis=1)
+        # Calculate amounts at every tick space based on liquidity for amounts1
+        self.df['amounts_1'] = self.df.apply(lambda x: get_amounts(x['ticks'],
+                                                                   self.tick_lower, self.tick_upper,
+                                                                   x['liquidity'], self.decimals0,
+                                                                   self.decimals1)[1], axis=1)
+        # Calculating price at every tick_space
+        self.df['price_t1/t0'] = 1 / (1.0001 ** self.df['ticks'] / 10 ** (self.decimals1 - self.decimals0))
+
+        # Calculating the value of the position in every tick_space
+        self.df['value_LP'] = self.df['amounts_1'] * self.df['price_t1/t0'] + self.df['amounts_0']
+
+        # Calculating the value of holding the initial amount of tokens
+        self.df['value_Hold'] = amount1 * self.df['price_t1/t0'] + amount0
+
+        # Calculating IL
+        self.df['IL_USD'] = self.df['value_LP'] - self.df['value_Hold']
+        self.df['ILvsHold'] = self.df['IL_USD'] / self.df['value_Hold']
+        return self.df
 
 
+# Ticks of the range to simulate
+tick_lower = 197740
+tick_upper = 198740
+tick_entry = 199740
 
-
-
+if __name__ == "__main__":
+    df = Pool_simualtion(tick_upper, tick_lower, tick_entry).create_df()
+    plt.plot(df['price_t1/t0'], df['IL_USD'])
+    plt.show()
